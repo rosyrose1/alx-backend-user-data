@@ -1,68 +1,42 @@
-0x02. Session authenticatio
+# Simple API
+
+Simple HTTP API for playing with `User` model.
 
 
-Tasks
-0. Et moi et moi et moi!
-mandatory
-Copy all your work of the 0x06. Basic authentication project in this new folder.
+## Files
 
-In this version, you implemented a Basic authentication for giving you access to all User endpoints:
+### `models/`
 
-GET /api/v1/users
-POST /api/v1/users
-GET /api/v1/users/<user_id>
-PUT /api/v1/users/<user_id>
-DELETE /api/v1/users/<user_id>
-Now, you will add a new endpoint: GET /users/me to retrieve the authenticated User object.
+- `base.py`: base of all models of the API - handle serialization to file
+- `user.py`: user model
 
-Copy folders models and api from the previous project 0x06. Basic authentication
-Please make sure all mandatory tasks of this previous project are done at 100% because this project (and the rest of this track) will be based on it.
-Update @app.before_request in api/v1/app.py:
-Assign the result of auth.current_user(request) to request.current_user
-Update method for the route GET /api/v1/users/<user_id> in api/v1/views/users.py:
-If <user_id> is equal to me and request.current_user is None: abort(404)
-If <user_id> is equal to me and request.current_user is not None: return the authenticated User in a JSON response (like a normal case of GET /api/v1/users/<user_id> where <user_id> is a valid User ID)
-Otherwise, keep the same behavior
+### `api/v1`
+
+- `app.py`: entry point of the API
+- `views/index.py`: basic endpoints of the API: `/status` and `/stats`
+- `views/users.py`: all users endpoints
 
 
+## Setup
 
-1. Empty session
-mandatory
-Create a class SessionAuth that inherits from Auth. For the moment this class will be empty. It’s the first step for creating a new authentication mechanism:
-
-validate if everything inherits correctly without any overloading
-validate the “switch” by using environment variables
-Update api/v1/app.py for using SessionAuth instance for the variable auth depending of the value of the environment variable AUTH_TYPE, If AUTH_TYPE is equal to session_auth:
-
-import SessionAuth from api.v1.auth.session_auth
-create an instance of SessionAuth and assign it to the variable auth
-Otherwise, keep the previous mechanism.
+```
+$ pip3 install -r requirements.txt
+```
 
 
-2. Create a session
-mandatory
-Update SessionAuth class:
+## Run
 
-Create a class attribute user_id_by_session_id initialized by an empty dictionary
-Create an instance method def create_session(self, user_id: str = None) -> str: that creates a Session ID for a user_id:
-Return None if user_id is None
-Return None if user_id is not a string
-Otherwise:
-Generate a Session ID using uuid module and uuid4() like id in Base
-Use this Session ID as key of the dictionary user_id_by_session_id - the value for this key must be user_id
-Return the Session ID
-The same user_id can have multiple Session ID - indeed, the user_id is the value in the dictionary user_id_by_session_id
-Now you an “in-memory” Session ID storing. You will be able to retrieve an User id based on a Session ID.
+```
+$ API_HOST=0.0.0.0 API_PORT=5000 python3 -m api.v1.app
+```
 
 
-3. User ID for Session ID
-mandatory
-Update SessionAuth class:
+## Routes
 
-Create an instance method def user_id_for_session_id(self, session_id: str = None) -> str: that returns a User ID based on a Session ID:
-
-Return None if session_id is None
-Return None if session_id is not a string
-Return the value (the User ID) for the key session_id in the dictionary user_id_by_session_id.
-You must use .get() built-in for accessing in a dictionary a value based on key
-Now you have 2 methods (create_session and user_id_for_session_id) for storing and retrieving a link between a User ID and a Session ID.n
+- `GET /api/v1/status`: returns the status of the API
+- `GET /api/v1/stats`: returns some stats of the API
+- `GET /api/v1/users`: returns the list of users
+- `GET /api/v1/users/:id`: returns an user based on the ID
+- `DELETE /api/v1/users/:id`: deletes an user based on the ID
+- `POST /api/v1/users`: creates a new user (JSON parameters: `email`, `password`, `last_name` (optional) and `first_name` (optional))
+- `PUT /api/v1/users/:id`: updates an user based on the ID (JSON parameters: `last_name` and `first_name`)
